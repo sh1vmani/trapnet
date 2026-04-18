@@ -1,0 +1,75 @@
+# trapnet configuration file
+#
+# IMPORTANT: Only deploy trapnet on networks you own
+# or have explicit written authorization to monitor.
+# Unauthorized use may violate local and federal law.
+# See LEGAL.md for the full responsible use policy.
+#
+# Change the dashboard password before deploying.
+# Default password "changeme" is intentionally weak.
+
+services:
+  ssh:
+    enabled: true
+    port: 22
+  ftp:
+    enabled: true
+    port: 21
+  telnet:
+    enabled: true
+    port: 23
+  http:
+    enabled: true
+    port: 80
+  https:
+    enabled: true
+    port: 443
+  mysql:
+    enabled: true
+    port: 3306
+  postgresql:
+    enabled: true
+    port: 5432
+  redis:
+    enabled: true
+    port: 6379
+  mongodb:
+    enabled: true
+    port: 27017
+  smb:
+    enabled: true
+    port: 445
+  rdp:
+    enabled: true
+    port: 3389
+  smtp:
+    enabled: true
+    port: 25
+  pop3:
+    enabled: true
+    port: 110
+  vnc:
+    enabled: true
+    port: 5900
+  memcached:
+    enabled: true
+    port: 11211
+
+dashboard:
+  host: "127.0.0.1"
+  port: 5000
+  password: "changeme"
+  enabled: true
+
+logging:
+  sqlite_path: "logs/trapnet.db"
+  json_log_path: "logs/trapnet.json"
+  max_log_size_mb: 100
+
+detection:
+  enabled: true
+  alert_threshold: 3
+
+snort:
+  enabled: false
+  alert_file: "/var/log/snort/alert"

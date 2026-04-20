@@ -15,8 +15,10 @@
 - COMPLETE: Step 9 - repo docs (README, LEGAL, CONTRIBUTING, SECURITY, CHANGELOG, GitHub templates)
 
 COMPLETED STEPS: 1, 2, 3, 4, 5, 6, 7, 8, 9
-COMPLETED DOCS: docs/README.md, docs/01-concepts/ (all 7 files)
-INTERRUPTED AT: About to start docs/02-architecture/
-NEXT STEP: Write all 5 files in docs/02-architecture/ folder
-REMAINING AFTER THAT: 03-code-walkthrough, 04-protocols,
-05-detection, 06-security-concepts, then Docker and final setup
+COMPLETED DOCS: docs/README.md, docs/01-concepts/ (all 7 files),
+docs/02-architecture/ (all 5 files),
+docs/03-code-walkthrough/ (all 7 files)
+INTERRUPTED AT: About to start docs/04-protocols/
+NEXT STEP: Write all 14 files in docs/04-protocols/ folder
+REMAINING AFTER THAT: 05-detection, 06-security-concepts,
+then Docker and final setup

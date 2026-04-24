@@ -17,8 +17,10 @@
 COMPLETED STEPS: 1, 2, 3, 4, 5, 6, 7, 8, 9
 COMPLETED DOCS: docs/README.md, docs/01-concepts/ (all 7 files),
 docs/02-architecture/ (all 5 files),
-docs/03-code-walkthrough/ (all 7 files)
-INTERRUPTED AT: About to start docs/04-protocols/
-NEXT STEP: Write all 14 files in docs/04-protocols/ folder
-REMAINING AFTER THAT: 05-detection, 06-security-concepts,
-then Docker and final setup
+docs/03-code-walkthrough/ (all 7 files),
+docs/04-protocols/ (all 14 files),
+docs/05-detection/ (all 6 files),
+docs/06-security-concepts/ (all 6 files)
+INTERRUPTED AT: All docs complete
+NEXT STEP: Docker setup (Dockerfile, docker-compose.yml, .dockerignore)
+REMAINING AFTER THAT: Final integration test, README polish, release prep

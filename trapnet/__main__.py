@@ -42,6 +42,12 @@ class Logger:
     async def get_stats(self) -> dict:
         return await core_logger.get_stats(self.db_path)
 
+    async def export_json(self, path: str) -> None:
+        await core_logger.export_json(self.db_path, path)
+
+    async def export_csv(self, path: str) -> None:
+        await core_logger.export_csv(self.db_path, path)
+
 
 def _check_legal() -> None:
     if os.path.isfile(ACCEPTED_FILE):

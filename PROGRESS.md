@@ -16,12 +16,27 @@
 - COMPLETE: Step 10 - all docs sections (04-protocols, 05-detection, 06-security-concepts)
 - COMPLETE: Step 11 - Docker setup (Dockerfile, docker-compose.yml, .dockerignore)
 
-COMPLETED STEPS: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+DAY 1 STATUS: COMPLETE
+ALL STEPS: 1 through 11 done
+BUGS FIXED: services.py implicit bytes concatenation (b"\x00" * N inside
+implicit concat blocks broken on Python 3.12+),
+__main__.py json_log_path attribute name (was json_path, caused AttributeError at startup)
+INTEGRATION CHECK: passed, all 15 services load,
+all 3 detector classifications correct (NMAP, METASPLOIT, CREDENTIAL_STUFFER)
+
 COMPLETED DOCS: docs/README.md, docs/01-concepts/ (all 7 files),
 docs/02-architecture/ (all 5 files),
 docs/03-code-walkthrough/ (all 7 files),
 docs/04-protocols/ (all 14 files),
 docs/05-detection/ (all 6 files),
 docs/06-security-concepts/ (all 6 files)
-NEXT STEP: Final integration check - verify imports, config loading,
-and that the package installs cleanly. Then release prep.
+
+DAY 2 PLAN:
+- Full Flask dashboard with Chart.js live updates
+- Attack feed table with real data from SQLite
+- 24-hour frequency chart
+- Top services and top IPs panels
+- GeoIP country display
+- Dashboard password protection
+- JSON and CSV export buttons
+- Snort optional integration in integrations/snort.py

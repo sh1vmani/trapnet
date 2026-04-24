@@ -44,4 +44,5 @@ DAY 2 PLAN:
 
 DAY 2 STATUS: In Progress
 - COMPLETE: Day 2 Step 2 - app.py, login.html, Logger export methods - 2026-04-24
-INTERRUPTED AT: About to start Day 2 Step 3 - index.html
+- COMPLETE: Day 2 Step 3 - index.html - 2026-04-24
+INTERRUPTED AT: About to start Day 2 Step 4 - main.js

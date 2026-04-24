@@ -1,0 +1,13 @@
+services:
+  trapnet:
+    build: .
+    container_name: trapnet
+    restart: unless-stopped
+    # network_mode: host is required so logs record real attacker source IPs.
+    # Docker NAT would replace every src_ip with the bridge address (172.17.0.1)
+    # and make the event log useless for threat intelligence.
+    # This mode works on Linux hosts only.
+    network_mode: host
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+      - ./logs:/app/logs

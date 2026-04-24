@@ -75,7 +75,7 @@ def main() -> None:
 
     os.makedirs("logs", exist_ok=True)
 
-    logger = Logger(config.logging.sqlite_path, config.logging.json_path)
+    logger = Logger(config.logging.sqlite_path, config.logging.json_log_path)
     detector = AttackDetector()
 
     # Dashboard runs in a daemon thread so it exits when the main process exits

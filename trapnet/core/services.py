@@ -46,7 +46,7 @@ MYSQL_HANDSHAKE = (
     b"\x02\x00"                     # server status flags
     b"\xff\x81"                     # capability flags upper
     b"\x15"                         # auth plugin data length (21)
-    b"\x00" * 10                    # reserved
+    b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"  # reserved (10 bytes)
     b"\x6d\x4f\x72\x3d\x42\x65\x72\x7a\x55\x31\x56\x00"  # auth data part 2
     b"mysql_native_password\x00"    # auth plugin name
 )
@@ -116,11 +116,11 @@ SMB2_RESPONSE = (
     b"\x01\x00"                    # credits granted
     b"\x00\x00\x00\x00"            # flags
     b"\x00\x00\x00\x00"            # next command offset
-    b"\x00" * 8                    # message ID
-    b"\x00" * 4                    # process ID
-    b"\x00" * 4                    # tree ID
-    b"\x00" * 8                    # session ID
-    b"\x00" * 16                   # signature
+    b"\x00\x00\x00\x00\x00\x00\x00\x00"  # message ID (8 bytes)
+    b"\x00\x00\x00\x00"            # process ID (4 bytes)
+    b"\x00\x00\x00\x00"            # tree ID (4 bytes)
+    b"\x00\x00\x00\x00\x00\x00\x00\x00"  # session ID (8 bytes)
+    b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"  # signature (16 bytes)
 )
 
 # RDP X.224 connection confirm PDU (19 bytes total, verified)

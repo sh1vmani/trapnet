@@ -45,4 +45,8 @@ DAY 2 PLAN:
 DAY 2 STATUS: In Progress
 - COMPLETE: Day 2 Step 2 - app.py, login.html, Logger export methods - 2026-04-24
 - COMPLETE: Day 2 Step 3 - index.html - 2026-04-24
-INTERRUPTED AT: About to start Day 2 Step 4 - main.js
+- COMPLETE: Day 2 Step 4 - main.js - 2026-04-24
+- COMPLETE: Day 2 Step 5 - snort.py (SnortTailer) - 2026-04-24
+- COMPLETE: Day 2 Step 6 - __main__.py snort task wiring - 2026-04-24
+- COMPLETE: Day 2 Step 7 - integration test, all 6 checks passed - 2026-04-24
+INTERRUPTED AT: About to start Day 2 Step 8 - final checks and commit

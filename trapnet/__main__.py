@@ -101,8 +101,18 @@ def main() -> None:
 
     async def run() -> None:
         await core_logger.init_db(config.logging.sqlite_path)
+        tasks = [engine.start()]
+        if config.snort.enabled:
+            from trapnet.integrations.snort import SnortTailer
+            tailer = SnortTailer(
+                config.snort.alert_file,
+                logger,
+                config.logging.sqlite_path,
+                config.logging.json_log_path,
+            )
+            tasks.append(tailer.start())
         try:
-            await engine.start()
+            await asyncio.gather(*tasks)
         except KeyboardInterrupt:
             pass
         finally:

@@ -27,29 +27,40 @@ LEGAL_TEXT = (
 
 
 class Logger:
-    # Wraps the core logger module so handlers receive an object with a simple
-    # log_connection(conn_data) method rather than calling module functions directly.
+    """Thin object wrapper around the core logger module.
+
+    Handlers receive a Logger instance rather than calling module
+    functions directly, which keeps their signatures stable if the
+    underlying storage layer changes.
+    """
+
     def __init__(self, db_path: str, json_path: str) -> None:
         self.db_path = db_path
         self.json_path = json_path
 
     async def log_connection(self, conn_data: dict) -> None:
+        """Persist one connection record to SQLite and the JSON log."""
         await core_logger.log_connection(self.db_path, self.json_path, conn_data)
 
     async def get_recent(self, limit: int = 100) -> list:
+        """Return the most recent connection records, newest first."""
         return await core_logger.get_recent(self.db_path, limit)
 
     async def get_stats(self) -> dict:
+        """Return aggregate statistics for the dashboard."""
         return await core_logger.get_stats(self.db_path)
 
     async def export_json(self, path: str) -> None:
+        """Export all records to path as a JSON array."""
         await core_logger.export_json(self.db_path, path)
 
     async def export_csv(self, path: str) -> None:
+        """Export all records to path as CSV with a header row."""
         await core_logger.export_csv(self.db_path, path)
 
 
 def _check_legal() -> None:
+    """Display the legal acknowledgment prompt and exit if not accepted."""
     if os.path.isfile(ACCEPTED_FILE):
         return
     print(LEGAL_TEXT, end="")
@@ -66,6 +77,7 @@ def _check_legal() -> None:
 
 
 def main() -> None:
+    """Entry point: parse args, start the dashboard thread, and run the engine."""
     # Legal acknowledgment runs before any other setup
     _check_legal()
 

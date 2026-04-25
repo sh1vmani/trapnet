@@ -38,6 +38,7 @@ class _EnrichedLogger:
 
 
 class HoneypotEngine:
+    """Starts and manages one asyncio server per enabled service."""
 
     def __init__(self, config, logger, detector, geoip) -> None:
         self._config = config
@@ -58,6 +59,7 @@ class HoneypotEngine:
         return _handler
 
     async def start(self) -> None:
+        """Bind all enabled services and serve until cancelled."""
         for name, svc in self._config.services.items():
             if not svc.enabled:
                 continue
@@ -89,6 +91,7 @@ class HoneypotEngine:
         await asyncio.gather(*(s.serve_forever() for s in self._servers))
 
     async def stop(self) -> None:
+        """Close all bound servers and wait for them to finish."""
         for server in self._servers:
             server.close()
         await asyncio.gather(*(s.wait_closed() for s in self._servers))

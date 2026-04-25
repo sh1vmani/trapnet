@@ -10,6 +10,12 @@ from flask import (
 
 
 def create_app(logger, config) -> Flask:
+    """Create and configure the Flask dashboard application.
+
+    Registers login/logout routes and authenticated API endpoints for
+    stats, recent connections, and JSON/CSV exports. The returned app
+    is intended to run in a daemon thread alongside the asyncio engine.
+    """
     app = Flask(__name__)
 
     # Secret key is generated once at startup and lives only in memory.

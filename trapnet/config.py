@@ -47,6 +47,10 @@ class Config:
 
     @classmethod
     def load(cls, path: str) -> "Config":
+        """Load and parse a YAML config file.
+
+        Raises ValueError if the file does not exist or contains invalid values.
+        """
         # Fail early with a clear message rather than a cryptic FileNotFoundError
         if not os.path.isfile(path):
             raise ValueError(
@@ -59,6 +63,7 @@ class Config:
 
     @classmethod
     def load_default(cls) -> "Config":
+        """Return a fully populated Config using built-in defaults, no file needed."""
         # Returns a fully populated config using built-in defaults, no file needed
         return cls._parse({})
 

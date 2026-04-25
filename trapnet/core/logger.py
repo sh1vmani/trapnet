@@ -6,6 +6,9 @@ import aiofiles
 import aiosqlite
 
 
+# Maximum rows fetched during a full export to cap memory usage
+_EXPORT_LIMIT = 10_000_000
+
 CREATE_TABLE_SQL = """
 CREATE TABLE IF NOT EXISTS connections (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,6 +28,7 @@ CREATE TABLE IF NOT EXISTS connections (
 
 
 async def init_db(db_path: str) -> None:
+    """Create the connections table if it does not already exist."""
     os.makedirs(os.path.dirname(db_path) or ".", exist_ok=True)
     async with aiosqlite.connect(db_path) as db:
         await db.execute(CREATE_TABLE_SQL)
@@ -32,6 +36,7 @@ async def init_db(db_path: str) -> None:
 
 
 async def log_connection(db_path: str, json_path: str, conn_data: dict) -> None:
+    """Write one connection record to SQLite and append it to the JSON log."""
     os.makedirs(os.path.dirname(json_path) or ".", exist_ok=True)
 
     # Parameterized query - never interpolate user-supplied values into SQL strings
@@ -70,6 +75,7 @@ async def log_connection(db_path: str, json_path: str, conn_data: dict) -> None:
 
 
 async def get_recent(db_path: str, limit: int = 100) -> list[dict]:
+    """Return the most recent connections ordered newest first."""
     sql = """
         SELECT id, timestamp, src_ip, src_port, dst_port, service,
                payload, credentials, scanner_type, country, city
@@ -85,6 +91,11 @@ async def get_recent(db_path: str, limit: int = 100) -> list[dict]:
 
 
 async def get_stats(db_path: str) -> dict:
+    """Return aggregate statistics used by the dashboard.
+
+    Returns a dict with total_connections, top_services, top_ips,
+    connections_last_24h (hourly buckets), and scanner_breakdown.
+    """
     async with aiosqlite.connect(db_path) as db:
         db.row_factory = aiosqlite.Row
 
@@ -143,15 +154,15 @@ async def get_stats(db_path: str) -> dict:
 
 
 async def export_json(db_path: str, path: str) -> None:
-    # Large limit caps memory usage during full exports rather than streaming unbounded rows
-    rows = await get_recent(db_path, limit=10_000_000)
+    """Write all connection records to path as a pretty-printed JSON array."""
+    rows = await get_recent(db_path, limit=_EXPORT_LIMIT)
     async with aiofiles.open(path, "w") as f:
         await f.write(json.dumps(rows, indent=2))
 
 
 async def export_csv(db_path: str, path: str) -> None:
-    # Large limit caps memory usage during full exports rather than streaming unbounded rows
-    rows = await get_recent(db_path, limit=10_000_000)
+    """Write all connection records to path as CSV with a header row."""
+    rows = await get_recent(db_path, limit=_EXPORT_LIMIT)
     if not rows:
         return
     # Write manually via aiofiles - csv.writer expects a synchronous file object

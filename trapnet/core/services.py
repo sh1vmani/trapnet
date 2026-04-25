@@ -3,6 +3,9 @@ import asyncio
 import struct
 from datetime import datetime, timezone
 
+# Seconds to wait for client data before treating the connection as a timeout
+HANDLER_TIMEOUT = 10.0
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -160,13 +163,19 @@ MEMCACHED_ERROR = b"ERROR\r\n"
 
 
 async def handle_ssh(reader, writer, logger, detector, config):
+    """Emulate SSH service on the configured port.
+
+    Sends a realistic SSH banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["ssh"].port
     try:
         writer.write(SSH_BANNER)
         await writer.drain()
         try:
-            data = await asyncio.wait_for(reader.read(1024), timeout=10.0)
+            data = await asyncio.wait_for(reader.read(1024), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             data = b""
         detection = await detector.analyze(src_ip, dst_port, data, "ssh")
@@ -182,6 +191,12 @@ async def handle_ssh(reader, writer, logger, detector, config):
 
 
 async def handle_ftp(reader, writer, logger, detector, config):
+    """Emulate FTP service on the configured port.
+
+    Sends a realistic FTP banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["ftp"].port
     username = None
@@ -191,7 +206,7 @@ async def handle_ftp(reader, writer, logger, detector, config):
         writer.write(FTP_BANNER)
         await writer.drain()
         try:
-            first_line = await asyncio.wait_for(reader.readline(), timeout=10.0)
+            first_line = await asyncio.wait_for(reader.readline(), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             first_line = b""
         if first_line.strip().upper().startswith(b"USER"):
@@ -199,7 +214,7 @@ async def handle_ftp(reader, writer, logger, detector, config):
             writer.write(FTP_PASS_PROMPT)
             await writer.drain()
             try:
-                pass_line = await asyncio.wait_for(reader.readline(), timeout=10.0)
+                pass_line = await asyncio.wait_for(reader.readline(), timeout=HANDLER_TIMEOUT)
             except asyncio.TimeoutError:
                 pass_line = b""
             if pass_line.strip().upper().startswith(b"PASS"):
@@ -221,6 +236,12 @@ async def handle_ftp(reader, writer, logger, detector, config):
 
 
 async def handle_telnet(reader, writer, logger, detector, config):
+    """Emulate Telnet service on the configured port.
+
+    Sends a realistic Telnet banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["telnet"].port
     username = None
@@ -230,14 +251,14 @@ async def handle_telnet(reader, writer, logger, detector, config):
         writer.write(TELNET_NEGOTIATION + TELNET_BANNER)
         await writer.drain()
         try:
-            first_data = await asyncio.wait_for(reader.readline(), timeout=10.0)
+            first_data = await asyncio.wait_for(reader.readline(), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             first_data = b""
         username = first_data.strip().decode(errors="replace")
         writer.write(TELNET_PASS_PROMPT)
         await writer.drain()
         try:
-            pass_data = await asyncio.wait_for(reader.readline(), timeout=10.0)
+            pass_data = await asyncio.wait_for(reader.readline(), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             pass_data = b""
         password = pass_data.strip().decode(errors="replace")
@@ -258,11 +279,17 @@ async def handle_telnet(reader, writer, logger, detector, config):
 
 
 async def handle_http(reader, writer, logger, detector, config):
+    """Emulate HTTP service on the configured port.
+
+    Sends a realistic HTTP banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["http"].port
     try:
         try:
-            data = await asyncio.wait_for(reader.read(4096), timeout=10.0)
+            data = await asyncio.wait_for(reader.read(4096), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             data = b""
         writer.write(HTTP_RESPONSE)
@@ -280,11 +307,17 @@ async def handle_http(reader, writer, logger, detector, config):
 
 
 async def handle_https(reader, writer, logger, detector, config):
+    """Emulate HTTPS service on the configured port.
+
+    Sends a realistic HTTPS banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["https"].port
     try:
         try:
-            data = await asyncio.wait_for(reader.read(4096), timeout=10.0)
+            data = await asyncio.wait_for(reader.read(4096), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             data = b""
         writer.write(HTTP_RESPONSE)
@@ -302,13 +335,19 @@ async def handle_https(reader, writer, logger, detector, config):
 
 
 async def handle_mysql(reader, writer, logger, detector, config):
+    """Emulate MySQL service on the configured port.
+
+    Sends a realistic MySQL banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["mysql"].port
     try:
         writer.write(MYSQL_HANDSHAKE)
         await writer.drain()
         try:
-            data = await asyncio.wait_for(reader.read(4096), timeout=10.0)
+            data = await asyncio.wait_for(reader.read(4096), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             data = b""
         writer.write(MYSQL_AUTH_ERROR)
@@ -326,18 +365,24 @@ async def handle_mysql(reader, writer, logger, detector, config):
 
 
 async def handle_postgresql(reader, writer, logger, detector, config):
+    """Emulate PostgreSQL service on the configured port.
+
+    Sends a realistic PostgreSQL banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["postgresql"].port
     try:
         try:
-            data = await asyncio.wait_for(reader.read(4096), timeout=10.0)
+            data = await asyncio.wait_for(reader.read(4096), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             data = b""
         writer.write(PG_AUTH_REQUEST)
         await writer.drain()
         # Read the client password response before closing with an error
         try:
-            await asyncio.wait_for(reader.read(4096), timeout=10.0)
+            await asyncio.wait_for(reader.read(4096), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             pass
         writer.write(PG_AUTH_ERROR)
@@ -355,11 +400,17 @@ async def handle_postgresql(reader, writer, logger, detector, config):
 
 
 async def handle_redis(reader, writer, logger, detector, config):
+    """Emulate Redis service on the configured port.
+
+    Sends a realistic Redis banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["redis"].port
     try:
         try:
-            data = await asyncio.wait_for(reader.read(1024), timeout=10.0)
+            data = await asyncio.wait_for(reader.read(1024), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             data = b""
         # RESP protocol commands start with * (array); anything else gets PONG
@@ -381,11 +432,17 @@ async def handle_redis(reader, writer, logger, detector, config):
 
 
 async def handle_mongodb(reader, writer, logger, detector, config):
+    """Emulate MongoDB service on the configured port.
+
+    Sends a realistic MongoDB banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["mongodb"].port
     try:
         try:
-            data = await asyncio.wait_for(reader.read(4096), timeout=10.0)
+            data = await asyncio.wait_for(reader.read(4096), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             data = b""
         writer.write(MONGO_ERROR)
@@ -403,11 +460,17 @@ async def handle_mongodb(reader, writer, logger, detector, config):
 
 
 async def handle_smb(reader, writer, logger, detector, config):
+    """Emulate SMB service on the configured port.
+
+    Sends a realistic SMB banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["smb"].port
     try:
         try:
-            data = await asyncio.wait_for(reader.read(4096), timeout=10.0)
+            data = await asyncio.wait_for(reader.read(4096), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             data = b""
         writer.write(SMB2_RESPONSE)
@@ -425,11 +488,17 @@ async def handle_smb(reader, writer, logger, detector, config):
 
 
 async def handle_rdp(reader, writer, logger, detector, config):
+    """Emulate RDP service on the configured port.
+
+    Sends a realistic RDP banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["rdp"].port
     try:
         try:
-            data = await asyncio.wait_for(reader.read(4096), timeout=10.0)
+            data = await asyncio.wait_for(reader.read(4096), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             data = b""
         writer.write(RDP_CONFIRM)
@@ -447,6 +516,12 @@ async def handle_rdp(reader, writer, logger, detector, config):
 
 
 async def handle_smtp(reader, writer, logger, detector, config):
+    """Emulate SMTP service on the configured port.
+
+    Sends a realistic SMTP banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["smtp"].port
     username = None
@@ -456,14 +531,14 @@ async def handle_smtp(reader, writer, logger, detector, config):
         writer.write(SMTP_BANNER)
         await writer.drain()
         try:
-            first_line = await asyncio.wait_for(reader.readline(), timeout=10.0)
+            first_line = await asyncio.wait_for(reader.readline(), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             first_line = b""
         if first_line.strip().upper().startswith(b"EHLO"):
             writer.write(SMTP_EHLO_RESP)
             await writer.drain()
             try:
-                auth_line = await asyncio.wait_for(reader.readline(), timeout=10.0)
+                auth_line = await asyncio.wait_for(reader.readline(), timeout=HANDLER_TIMEOUT)
             except asyncio.TimeoutError:
                 auth_line = b""
             # AUTH LOGIN sends credentials as two separate base64-encoded lines,
@@ -472,13 +547,13 @@ async def handle_smtp(reader, writer, logger, detector, config):
                 writer.write(b"334 Username:\r\n")
                 await writer.drain()
                 try:
-                    cred1 = await asyncio.wait_for(reader.readline(), timeout=10.0)
+                    cred1 = await asyncio.wait_for(reader.readline(), timeout=HANDLER_TIMEOUT)
                 except asyncio.TimeoutError:
                     cred1 = b""
                 writer.write(b"334 Password:\r\n")
                 await writer.drain()
                 try:
-                    cred2 = await asyncio.wait_for(reader.readline(), timeout=10.0)
+                    cred2 = await asyncio.wait_for(reader.readline(), timeout=HANDLER_TIMEOUT)
                 except asyncio.TimeoutError:
                     cred2 = b""
                 username = cred1.strip().decode(errors="replace")
@@ -500,6 +575,12 @@ async def handle_smtp(reader, writer, logger, detector, config):
 
 
 async def handle_pop3(reader, writer, logger, detector, config):
+    """Emulate POP3 service on the configured port.
+
+    Sends a realistic POP3 banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["pop3"].port
     username = None
@@ -509,7 +590,7 @@ async def handle_pop3(reader, writer, logger, detector, config):
         writer.write(POP3_BANNER)
         await writer.drain()
         try:
-            first_line = await asyncio.wait_for(reader.readline(), timeout=10.0)
+            first_line = await asyncio.wait_for(reader.readline(), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             first_line = b""
         if first_line.strip().upper().startswith(b"USER"):
@@ -517,7 +598,7 @@ async def handle_pop3(reader, writer, logger, detector, config):
             writer.write(POP3_USER_OK)
             await writer.drain()
             try:
-                pass_line = await asyncio.wait_for(reader.readline(), timeout=10.0)
+                pass_line = await asyncio.wait_for(reader.readline(), timeout=HANDLER_TIMEOUT)
             except asyncio.TimeoutError:
                 pass_line = b""
             if pass_line.strip().upper().startswith(b"PASS"):
@@ -539,27 +620,33 @@ async def handle_pop3(reader, writer, logger, detector, config):
 
 
 async def handle_vnc(reader, writer, logger, detector, config):
+    """Emulate VNC service on the configured port.
+
+    Sends a realistic VNC banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["vnc"].port
     try:
         writer.write(VNC_VERSION)
         await writer.drain()
         try:
-            client_version = await asyncio.wait_for(reader.read(12), timeout=10.0)
+            client_version = await asyncio.wait_for(reader.read(12), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             client_version = b""
         writer.write(VNC_SEC_TYPES)
         await writer.drain()
         # Read the 1-byte security type selection from the client
         try:
-            await asyncio.wait_for(reader.read(1), timeout=10.0)
+            await asyncio.wait_for(reader.read(1), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             pass
         writer.write(VNC_CHALLENGE)
         await writer.drain()
         # Read the 16-byte DES-encrypted auth response
         try:
-            auth_response = await asyncio.wait_for(reader.read(16), timeout=10.0)
+            auth_response = await asyncio.wait_for(reader.read(16), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             auth_response = b""
         writer.write(VNC_AUTH_FAILED)
@@ -578,11 +665,17 @@ async def handle_vnc(reader, writer, logger, detector, config):
 
 
 async def handle_memcached(reader, writer, logger, detector, config):
+    """Emulate Memcached service on the configured port.
+
+    Sends a realistic Memcached banner, captures the
+    client payload, runs detection, and logs the
+    connection. Always closes the connection cleanly.
+    """
     src_ip, src_port = writer.get_extra_info("peername")
     dst_port = config.services["memcached"].port
     try:
         try:
-            data = await asyncio.wait_for(reader.read(1024), timeout=10.0)
+            data = await asyncio.wait_for(reader.read(1024), timeout=HANDLER_TIMEOUT)
         except asyncio.TimeoutError:
             data = b""
         if data.strip().lower().startswith(b"stats"):

@@ -20,6 +20,7 @@ _MSG_LINE = re.compile(r"\[\*\*\]\s+\[[\d:]+\]\s+(.+?)\s+\[\*\*\]")
 
 
 class SnortTailer:
+    """Tails a Snort fast-alert file and logs each alert as a connection record."""
 
     def __init__(self, alert_file: str, logger, db_path: str, json_path: str) -> None:
         self._alert_file = alert_file
@@ -29,6 +30,7 @@ class SnortTailer:
         self._running = False
 
     async def start(self) -> None:
+        """Seek to the end of the alert file and tail it until stopped."""
         self._running = True
         try:
             with open(self._alert_file, "r") as fh:
@@ -52,6 +54,7 @@ class SnortTailer:
             print(f"snort tailer error: {exc}")
 
     async def stop(self) -> None:
+        """Signal the tailing loop to exit after the current iteration."""
         self._running = False
 
     async def _handle_block(self, lines: list[str]) -> None:

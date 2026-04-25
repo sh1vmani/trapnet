@@ -30,6 +30,7 @@ _PRIVATE_NETWORKS = [
 
 
 def is_private(ip: str) -> bool:
+    """Return True if ip is an RFC1918 or loopback address."""
     try:
         addr = ipaddress.ip_address(ip)
     except ValueError:
@@ -38,6 +39,13 @@ def is_private(ip: str) -> bool:
 
 
 async def lookup(ip: str) -> dict:
+    """Return {country, city} for the given IP address.
+
+    Private and loopback addresses return {"country": "Local", "city": "Local"}
+    without making an outbound request. Results are cached for the process
+    lifetime. Falls back to {"country": "Unknown", "city": "Unknown"} on any
+    network error or API failure.
+    """
     global _request_lock
     if _request_lock is None:
         _request_lock = asyncio.Lock()

@@ -2,8 +2,17 @@ from __future__ import annotations
 import asyncio
 import time
 
+# Maximum age of a tracker entry before it is pruned (5 minutes)
+_TRACKER_TTL = 300
+
 
 class AttackDetector:
+    """Stateful scanner and attack-pattern detector.
+
+    Tracks per-IP connection history and classifies each new
+    connection against known scanner signatures. Thread-safe
+    via an asyncio.Lock acquired inside each public method.
+    """
 
     def __init__(self) -> None:
         # Maps each source IP to a list of (timestamp, port, service) tuples
@@ -18,8 +27,8 @@ class AttackDetector:
         return self._lock
 
     async def _clean_tracker(self) -> None:
-        # Remove events older than 5 minutes to bound memory usage
-        cutoff = time.monotonic() - 300
+        # Remove events older than _TRACKER_TTL to bound memory usage
+        cutoff = time.monotonic() - _TRACKER_TTL
         async with self._get_lock():
             for ip in list(self._tracker):
                 self._tracker[ip] = [e for e in self._tracker[ip] if e[0] > cutoff]
@@ -33,6 +42,18 @@ class AttackDetector:
         payload: bytes,
         service: str,
     ) -> dict:
+        """Analyze one connection and return the best scanner match.
+
+        Args:
+            src_ip: Source IP of the connecting host.
+            dst_port: Destination port that received the connection.
+            payload: Raw bytes sent by the client (may be empty).
+            service: Honeypot service name (e.g. "ssh", "http").
+
+        Returns:
+            Dict with keys scanner_type (str or None), confidence
+            (float 0-1), and indicators (list of str).
+        """
         # Clean stale entries before evaluating this connection
         await self._clean_tracker()
 

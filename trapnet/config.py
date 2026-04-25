@@ -64,8 +64,25 @@ class Config:
     @classmethod
     def load_default(cls) -> "Config":
         """Return a fully populated Config using built-in defaults, no file needed."""
-        # Returns a fully populated config using built-in defaults, no file needed
-        return cls._parse({})
+        return cls._parse({
+            "services": {
+                "ssh":        {"enabled": True, "port": 22},
+                "ftp":        {"enabled": True, "port": 21},
+                "telnet":     {"enabled": True, "port": 23},
+                "http":       {"enabled": True, "port": 80},
+                "https":      {"enabled": True, "port": 443},
+                "mysql":      {"enabled": True, "port": 3306},
+                "postgresql": {"enabled": True, "port": 5432},
+                "redis":      {"enabled": True, "port": 6379},
+                "mongodb":    {"enabled": True, "port": 27017},
+                "smb":        {"enabled": True, "port": 445},
+                "rdp":        {"enabled": True, "port": 3389},
+                "smtp":       {"enabled": True, "port": 25},
+                "pop3":       {"enabled": True, "port": 110},
+                "vnc":        {"enabled": True, "port": 5900},
+                "memcached":  {"enabled": True, "port": 11211},
+            }
+        })
 
     @classmethod
     def _parse(cls, raw: dict) -> "Config":

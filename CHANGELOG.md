@@ -8,6 +8,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## v0.1.1 - 2026-04-25
+
+### Fixed
+
+- Suppress expected Windows connection reset errors in service handlers. On Windows, clients
+  that drop non-HTTP connections after receiving protocol banners (SMTP, FTP, SMB, etc.) now
+  close silently without printing handler errors to the terminal.
+
 ## v0.1.0 - 2026-04-24
 
 ### Added

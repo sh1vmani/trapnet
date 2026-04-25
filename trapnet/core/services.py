@@ -6,6 +6,18 @@ from datetime import datetime, timezone
 # Seconds to wait for client data before treating the connection as a timeout
 HANDLER_TIMEOUT = 10.0
 
+# Error substrings that indicate a client dropped the connection abruptly.
+# These are normal on Windows when tools like PowerShell curl close after
+# receiving a non-HTTP banner. They are not real handler errors.
+_RESET_ERRORS = (
+    "connection lost",
+    "connection reset",
+    "winerror 64",
+    "winerror 10054",
+    "forcibly closed",
+    "broken pipe",
+)
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -13,6 +25,11 @@ def _now() -> str:
 
 def _hex(data: bytes) -> str:
     return data.hex() if data else ""
+
+
+def _is_reset(exc: Exception) -> bool:
+    msg = str(exc).lower()
+    return any(s in msg for s in _RESET_ERRORS)
 
 
 SSH_BANNER = b"SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.6\r\n"
@@ -185,7 +202,8 @@ async def handle_ssh(reader, writer, logger, detector, config):
             "payload": _hex(data), "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"ssh handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"ssh handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -230,7 +248,8 @@ async def handle_ftp(reader, writer, logger, detector, config):
             "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"ftp handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"ftp handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -273,7 +292,8 @@ async def handle_telnet(reader, writer, logger, detector, config):
             "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"telnet handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"telnet handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -301,7 +321,8 @@ async def handle_http(reader, writer, logger, detector, config):
             "payload": _hex(data), "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"http handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"http handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -329,7 +350,8 @@ async def handle_https(reader, writer, logger, detector, config):
             "payload": _hex(data), "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"https handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"https handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -359,7 +381,8 @@ async def handle_mysql(reader, writer, logger, detector, config):
             "payload": _hex(data), "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"mysql handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"mysql handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -394,7 +417,8 @@ async def handle_postgresql(reader, writer, logger, detector, config):
             "payload": _hex(data), "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"postgresql handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"postgresql handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -426,7 +450,8 @@ async def handle_redis(reader, writer, logger, detector, config):
             "payload": _hex(data), "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"redis handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"redis handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -454,7 +479,8 @@ async def handle_mongodb(reader, writer, logger, detector, config):
             "payload": _hex(data), "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"mongodb handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"mongodb handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -482,7 +508,8 @@ async def handle_smb(reader, writer, logger, detector, config):
             "payload": _hex(data), "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"smb handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"smb handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -510,7 +537,8 @@ async def handle_rdp(reader, writer, logger, detector, config):
             "payload": _hex(data), "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"rdp handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"rdp handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -569,7 +597,8 @@ async def handle_smtp(reader, writer, logger, detector, config):
             "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"smtp handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"smtp handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -614,7 +643,8 @@ async def handle_pop3(reader, writer, logger, detector, config):
             "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"pop3 handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"pop3 handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -659,7 +689,8 @@ async def handle_vnc(reader, writer, logger, detector, config):
             "payload": _hex(payload), "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"vnc handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"vnc handler error from {src_ip}: {exc}")
     finally:
         writer.close()
 
@@ -690,6 +721,7 @@ async def handle_memcached(reader, writer, logger, detector, config):
             "payload": _hex(data), "scanner_type": detection.get("scanner_type"),
         })
     except Exception as exc:
-        print(f"memcached handler error from {src_ip}: {exc}")
+        if not _is_reset(exc):
+            print(f"memcached handler error from {src_ip}: {exc}")
     finally:
         writer.close()

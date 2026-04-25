@@ -44,6 +44,7 @@ all 7 routes registered, SnortTailer instantiates correctly
 - COMPLETE: Day 3 Step 3 - pytest suite, 17/17 passing, fixed load_default() to return 15 services - 2026-04-24
 - COMPLETE: Day 3 Step 4 - README polish, Detection table, Testing section, architecture diagram, LICENSE created - 2026-04-24
 - COMPLETE: Day 3 Step 5 - Final scan clean: zero em dashes, one CLAUDE.md heading (permitted), single contributor identity - 2026-04-24
+- COMPLETE: Day 3 Step 6 - v0.1.0 release tag and GitHub release - 2026-04-24
 
 DAY 3 PLAN:
 - Integration tests (pytest)

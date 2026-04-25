@@ -116,8 +116,12 @@ Set `enabled: false` under the service block. trapnet skips that handler entirel
 │          enriches record with GeoIP data             │
 │                                                      │
 │  Flask dashboard (daemon thread)                     │
-│    /              - status page                      │
-│    /api/stats     - JSON stats from SQLite           │
+│    /login, /logout    - password authentication      │
+│    /                  - live dashboard               │
+│    /api/stats         - aggregate stats (JSON)       │
+│    /api/recent        - last 100 connections (JSON)  │
+│    /api/export/json   - full export download         │
+│    /api/export/csv    - full export download         │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -161,10 +165,35 @@ Every connection attempt writes one record to SQLite and one JSON line:
 
 ---
 
+## Detection
+
+| Scanner | Confidence | Key signals |
+|---|---|---|
+| METASPLOIT | 0.9 | EternalBlue SMB byte signature, Metasploit string in payload |
+| MASSCAN | 0.85 | More than 20 connections from one IP in 10 seconds |
+| NMAP | 0.8 | Known probe strings (GET / HTTP/1.0 etc.), more than 7 unique ports in 60 seconds |
+| CREDENTIAL_STUFFER | 0.75 | More than 3 auth attempts in 30 seconds, common password strings |
+| SHODAN | 0.7 | Crawler identifier in HTTP request, zero-byte banner grab on web port |
+| GENERIC_SCANNER | 0.5 | More than 3 unique ports in 60 seconds, no stronger signal |
+
+When multiple categories match, the highest-confidence result wins. The `indicators` field in each log record lists the specific evidence that triggered detection.
+
+---
+
 ## Requirements
 
 - Python 3.10+
 - See `requirements.txt` for Python dependencies
+
+---
+
+## Testing
+
+```bash
+python -m pytest tests/ -v
+```
+
+The test suite covers config loading, scanner detection, SQLite logging, and service handlers. All tests run without network access.
 
 ---
 
@@ -178,4 +207,4 @@ See [SECURITY.md](SECURITY.md).
 
 ## License
 
-MIT. See [LICENSE](LICENSE) (to be added).
+MIT. See [LICENSE](LICENSE).

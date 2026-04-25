@@ -42,6 +42,7 @@ all 7 routes registered, SnortTailer instantiates correctly
 - COMPLETE: Day 3 Step 1 - Full codebase review, findings reported - 2026-04-24
 - COMPLETE: Day 3 Step 2 - Docstrings added, HANDLER_TIMEOUT/_TRACKER_TTL/_EXPORT_LIMIT extracted - 2026-04-24
 - COMPLETE: Day 3 Step 3 - pytest suite, 17/17 passing, fixed load_default() to return 15 services - 2026-04-24
+- COMPLETE: Day 3 Step 4 - README polish, Detection table, Testing section, architecture diagram, LICENSE created - 2026-04-24
 
 DAY 3 PLAN:
 - Integration tests (pytest)
